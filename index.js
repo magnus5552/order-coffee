@@ -1,188 +1,162 @@
-function drinkForm({ drinks }) {
-  return create(
-    "form",
-    {},
-    ...drinks.map((o, i) => singleDrinkForm({ id: i + 1, ...o })),
-    create(
-      "div",
-      {},
-      create(
-        "button",
-        { type: "button", className: "add-button" },
-        "+ Добавить напиток"
-      )
-    ),
-    create(
-      "div",
-      { style: "margin-top: 30px" },
-      create("button", { type: "submit", className: "submit-button" }, "Готово")
-    )
-  );
-}
+document.addEventListener("DOMContentLoaded", function () {
+  let modal = document.querySelector(".modal");
+  let modalContent = document.querySelector(".modal-content");
+  let addButton = document.querySelector(".add-button");
+  let modalClose = document.querySelector(".close");
+  let beverageCount = 1;
 
-function singleDrinkForm({ id, types, milk, options }) {
-  let fieldSet = create(
-    "fieldset",
-    { className: "beverage" },
-    create("h4", (props = { className: "beverage-count" }), `Напиток №${id}`),
-    create(
-      "label",
-      { className: "field" },
-      create("span", { className: "label-text" }, "Я буду"),
-      create(
-        "select",
-        {},
-        ...types.values.map((o) =>
-          option(
-            { value: o.value, selected: o.value === types.selected },
-            (v) => (types.selected = v),
-            create("span", {}, o.text)
-          )
-        )
-      )
-    ),
-    checkboxList(
-      "radio",
-      milk,
-      (props, v) => (props.selected = v),
-      (props, v) => props.selected === v
-    ),
-    checkboxList(
-      "checkbox",
-      options,
-      (props, v) =>
-        props.selected.includes(v)
-          ? props.selected.remove(v)
-          : props.selected.push(v),
-      (props, v) => props.selected.includes(v)
-    )
-  );
-  return fieldSet;
-}
+  addButton.addEventListener("click", function () {
+    beverageCount++;
+    let newBeverage = createBeverageFieldset(beverageCount);
+    addButton.parentNode.insertBefore(newBeverage, addButton);
+  });
 
-function checkboxList(inputType, props, changeSelected, checkSelected) {
-  return create(
-    "div",
-    { className: "field" },
-    checkboxLabel(props.label),
-    ...props.values.map((o) =>
-      create(
-        "label",
-        { className: "checkbox-field" },
-        input(
-          {
-            type: inputType,
-            name: props.name,
-            value: o.value,
-            checked: checkSelected(props, o.value),
-          },
-          (v) => changeSelected(props, v)
-        ),
-        create("span", {}, o.text)
-      )
-    )
-  );
-}
+  document.querySelector('.submit-button').addEventListener('click', (event) => {
+    event.preventDefault();
 
-function checkboxLabel(text) {
-  return create("span", { className: "checkbox-label" }, text);
-}
+    const beverages = document.querySelectorAll('.beverage');
+    let totalBeverageCount = beverages.length;
 
-/**
- * @param {HTMLElementTagNameMap['input']} props
- * @param {Function} onCheck
- */
-function input(props, onCheck, ...children) {
-  let elem = create("input", props, ...children);
-  elem.addEventListener("changed", (e) => onCheck(e.target.value));
-  return elem;
-}
+    let orderText = `Заказ принят! Вы заказали ${totalBeverageCount} ${getCorrectWordForm(totalBeverageCount, 'напиток')}`;
+    let tableContent = generateOrderTableContent(beverages);
 
-/**
- * @param {HTMLElementTagNameMap['option']} props
- * @param {Function} onCheck
- */
-function option(props, onCheck, ...children) {
-  let elem = create("option", props, ...children);
-  elem.addEventListener("changed", (e) => onCheck(e.target.value));
-  return elem;
-}
+    modalContent.innerHTML = `<p>${orderText}</p>${tableContent}`;
+    modal.style.display = 'block';
+  });
 
-/**'
- * @param {keyof HTMLElementTagNameMap} tagName
- * @param {HTMLElementTagNameMap[tagName]} props
- * @param {...HTMLElement[]} children
- * @returns {HTMLElementTagNameMap[tagName]}
- */
-function create(tagName, props, ...children) {
-  let elem = document.createElement(tagName);
-  Object.keys(props).forEach((x) => (elem[x] = props[x]));
-  elem.append(...children);
-  return elem;
-}
+  function createBeverageFieldset(beverageCount) {
+    let newBeverage = document.createElement('fieldset');
+    newBeverage.classList.add('beverage');
+    newBeverage.innerHTML = `
+            <button class="delete-button" onclick="
+                if (document.querySelectorAll('.beverage').length > 1) {
+                    this.parentNode.remove();
+                }
+            ">❌</button>
+            <h4 class="beverage-count">Напиток №${beverageCount}</h4>
+            <label class="field">
+                <span class="label-text">Я буду</span>
+                <select>
+                    <option value="espresso">Эспрессо</option>
+                    <option value="capuccino" selected>Капучино</option>
+                    <option value="cacao">Какао</option>
+                </select>
+            </label>
+            <div class="field">
+                <span class="checkbox-label">Сделайте напиток на</span>
+                <label class="checkbox-field">
+                    <input type="radio" name="milk${beverageCount}" value="usual" checked />
+                    <span>обычном молоке</span>
+                </label>
+                <label class="checkbox-field">
+                    <input type="radio" name="milk${beverageCount}" value="no-fat" />
+                    <span>обезжиренном молоке</span>
+                </label>
+                <label class="checkbox-field">
+                    <input type="radio" name="milk${beverageCount}" value="soy" />
+                    <span>соевом молоке</span>
+                </label>
+                <label class="checkbox-field">
+                    <input type="radio" name="milk${beverageCount}" value="coconut" />
+                    <span>кокосовом молоке</span>
+                </label>
+            </div>
+            <div class="field">
+                <span class="checkbox-label">Добавьте к напитку:</span>
+                <label class="checkbox-field">
+                    <input type="checkbox" name="options${beverageCount}" value="whipped cream" />
+                    <span>взбитых сливок</span>
+                </label>
+                <label class="checkbox-field">
+                    <input type="checkbox" name="options${beverageCount}" value="marshmallow" />
+                    <span>зефирок</span>
+                </label>
+                <label class="checkbox-field">
+                    <input type="checkbox" name="options${beverageCount}" value="chocolate" />
+                    <span>шоколад</span>
+                </label>
+                <label class="checkbox-field">
+                    <input type="checkbox" name="options${beverageCount}" value="cinnamon" />
+                    <span>корицу</span>
+                </label>
+            </div>
+        `;
 
-const defaultDrink = {
-  types: {
-    values: [
-      {
-        value: "espresso",
-        text: "Эспрессо",
-      },
-      {
-        value: "capuccino",
-        text: "Капучино",
-      },
-      {
-        value: "cacao",
-        text: "Какао",
-      },
-    ],
-    selected: "capuccino",
-  },
-  milk: {
-    label: "Сделайте напиток на",
-    name: "milk",
-    values: [
-      {
-        value: "usual",
-        text: "обычном молоке",
-      },
-      {
-        value: "no-fat",
-        text: "обезжиренном молоке",
-      },
-      {
-        value: "soy",
-        text: "соевом молоке",
-      },
-      {
-        value: "coconut",
-        text: "кокосовом молоке",
-      },
-    ],
-    selected: "usual",
-  },
-  options: {
-    label: "Добавьте к напитку:",
-    name: "options",
-    values: [
-      {
-        value: "espresso",
-        text: "Эспрессо",
-      },
-      {
-        value: "capuccino",
-        text: "Капучино",
-      },
-      {
-        value: "cacao",
-        text: "Какао",
-      },
-    ],
-    selected: ["capuccino"],
-  },
-};
-drinks = [defaultDrink];
+    return newBeverage;
+  }
 
-document.querySelector("body")
-  .appendChild(drinkForm({ drinks }));
+  function getCorrectWordForm(number, word) {
+    if (number % 100 >= 11 && number % 100 <= 19) {
+      return word + "ов";
+    } else {
+      switch (number % 10) {
+        case 1:
+          return word;
+        case 2:
+        case 3:
+        case 4:
+          return "напитка";
+        default:
+          return "напитков";
+      }
+    }
+  }
+
+  function generateOrderTableContent(beverages) {
+    let content = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Напиток</th>
+                    <th>Молоко</th>
+                    <th>Дополнительно</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    beverages.forEach((beverage) => {
+      let selectedMilk = beverage.querySelector(`input[type="radio"]:checked`).nextElementSibling.textContent;
+      if (selectedMilk === 'обычном молоке') {
+        selectedMilk = 'обычное молоко';
+      }
+      if (selectedMilk === 'обезжиренном молоке') {
+        selectedMilk = 'обезжиренное молоко';
+      }
+      if (selectedMilk === 'соевом молоке') {
+        selectedMilk = 'соевое молоко';
+      }
+      if (selectedMilk === 'кокосовом молоке') {
+        selectedMilk = 'кокосовое молоко';
+      }
+
+      let selectedOptions = [];
+      beverage.querySelectorAll(`input[type="checkbox"]:checked`).forEach((option) => {
+        let optionText = option.nextElementSibling.textContent;
+
+        if (optionText === 'взбитых сливок') {
+          optionText = 'взбитые сливки';
+        }
+        if (optionText === 'зефирок') {
+          optionText = 'зефирки';
+        }
+        if (optionText === 'корицу') {
+          optionText = 'корица';
+        }
+        selectedOptions.push(optionText);
+      });
+
+      content += `
+                <tr>
+                    <td>${beverage.querySelector('select').selectedOptions[0].text}</td>
+                    <td>${selectedMilk}</td>
+                    <td>${selectedOptions.join(', ')}</td>
+                </tr>
+            `;
+    });
+
+    content += '</tbody></table>';
+
+    return content;
+  }
+});
