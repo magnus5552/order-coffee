@@ -1,4 +1,24 @@
-function drinkForm({ drinks }) {}
+function drinkForm({ drinks }) {
+  return create(
+    "form",
+    {},
+    ...drinks.map((o, i) => singleDrinkForm({ id: i + 1, ...o })),
+    create(
+      "div",
+      {},
+      create(
+        "button",
+        { type: "button", className: "add-button" },
+        "+ Добавить напиток"
+      )
+    ),
+    create(
+      "div",
+      { style: "margin-top: 30px" },
+      create("button", { type: "submit", className: "submit-button" }, "Готово")
+    )
+  );
+}
 
 function singleDrinkForm({ id, types, milk, options }) {
   let fieldSet = create(
@@ -21,12 +41,20 @@ function singleDrinkForm({ id, types, milk, options }) {
         )
       )
     ),
-    checkboxList("radio", milk, (props, v) => (props.selected = v), (props, v) => props.selected === v),
-    checkboxList("checkbox", options, (props, v) =>
-      props.selected.includes(v)
-        ? props.selected.remove(v)
-        : props.selected.push(v),
-        (props, v) => props.selected.includes(v)
+    checkboxList(
+      "radio",
+      milk,
+      (props, v) => (props.selected = v),
+      (props, v) => props.selected === v
+    ),
+    checkboxList(
+      "checkbox",
+      options,
+      (props, v) =>
+        props.selected.includes(v)
+          ? props.selected.remove(v)
+          : props.selected.push(v),
+      (props, v) => props.selected.includes(v)
     )
   );
   return fieldSet;
@@ -88,72 +116,73 @@ function option(props, onCheck, ...children) {
  */
 function create(tagName, props, ...children) {
   let elem = document.createElement(tagName);
-  Object.keys(props).forEach(x => (elem[x] = props[x]));
+  Object.keys(props).forEach((x) => (elem[x] = props[x]));
   elem.append(...children);
   return elem;
 }
 
 const defaultDrink = {
-    types: {
-      values: [
-        {
-          value: "espresso",
-          text: "Эспрессо",
-        },
-        {
-          value: "capuccino",
-          text: "Капучино",
-        },
-        {
-          value: "cacao",
-          text: "Какао",
-        },
-      ],
-      selected: "capuccino",
-    },
-    milk: {
-      label: 'Сделайте напиток на',
-      name: 'milk',
-      values: [
-        {
-          value: "usual",
-          text: "обычном молоке",
-        },
-        {
-          value: "no-fat",
-          text: "обезжиренном молоке",
-        },
-        {
-          value: "soy",
-          text: "соевом молоке",
-        },
-        {
-          value: "coconut",
-          text: "кокосовом молоке",
-        }
-      ],
-      selected: "usual",
-    },
-    options: {
-      label: 'Добавьте к напитку:',
-      name: 'options',
-      values: [
-        {
-          value: "espresso",
-          text: "Эспрессо",
-        },
-        {
-          value: "capuccino",
-          text: "Капучино",
-        },
-        {
-          value: "cacao",
-          text: "Какао",
-        },
-      ],
-      selected: ["capuccino"],
-    },
-  };
+  types: {
+    values: [
+      {
+        value: "espresso",
+        text: "Эспрессо",
+      },
+      {
+        value: "capuccino",
+        text: "Капучино",
+      },
+      {
+        value: "cacao",
+        text: "Какао",
+      },
+    ],
+    selected: "capuccino",
+  },
+  milk: {
+    label: "Сделайте напиток на",
+    name: "milk",
+    values: [
+      {
+        value: "usual",
+        text: "обычном молоке",
+      },
+      {
+        value: "no-fat",
+        text: "обезжиренном молоке",
+      },
+      {
+        value: "soy",
+        text: "соевом молоке",
+      },
+      {
+        value: "coconut",
+        text: "кокосовом молоке",
+      },
+    ],
+    selected: "usual",
+  },
+  options: {
+    label: "Добавьте к напитку:",
+    name: "options",
+    values: [
+      {
+        value: "espresso",
+        text: "Эспрессо",
+      },
+      {
+        value: "capuccino",
+        text: "Капучино",
+      },
+      {
+        value: "cacao",
+        text: "Какао",
+      },
+    ],
+    selected: ["capuccino"],
+  },
+};
 drinks = [defaultDrink];
 
-document.querySelector('#test').appendChild(singleDrinkForm({id: 1, ...defaultDrink}));
+document.querySelector("body")
+  .appendChild(drinkForm({ drinks }));
