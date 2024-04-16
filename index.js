@@ -5,84 +5,51 @@ document.addEventListener("DOMContentLoaded", function () {
   let modalClose = document.querySelector(".close");
   let beverageCount = 1;
 
-  addButton.addEventListener("click", function () {
+  addButton.addEventListener("click", () => {
     beverageCount++;
-    let newBeverage = createBeverageFieldset(beverageCount);
-    addButton.parentNode.insertBefore(newBeverage, addButton);
+    let newBeverage = createBeverageFieldset();
+    addButton.parentNode.parentNode.insertBefore(newBeverage, addButton.parentNode);
   });
 
-  document.querySelector('.submit-button').addEventListener('click', (event) => {
-    event.preventDefault();
+  addDeleteButtonListener(document.querySelector('.beverage'));
 
-    const beverages = document.querySelectorAll('.beverage');
-    let totalBeverageCount = beverages.length;
+  document
+    .querySelector(".submit-button")
+    .addEventListener("click", (event) => {
+      event.preventDefault();
 
-    let orderText = `Заказ принят! Вы заказали ${totalBeverageCount} ${getCorrectWordForm(totalBeverageCount, 'напиток')}`;
-    let tableContent = generateOrderTableContent(beverages);
+      const beverages = document.querySelectorAll(".beverage");
+    
 
-    modalContent.innerHTML = `<p>${orderText}</p>${tableContent}`;
-    modal.style.display = 'block';
-  });
+      let orderText = `Заказ принят! Вы заказали ${beverageCount} ${getCorrectWordForm(
+        beverageCount,
+        "напиток"
+      )}`;
+      let tableContent = generateOrderTableContent(beverages);
 
-  function createBeverageFieldset(beverageCount) {
-    let newBeverage = document.createElement('fieldset');
-    newBeverage.classList.add('beverage');
-    newBeverage.innerHTML = `
-            <button class="delete-button" onclick="
-                if (document.querySelectorAll('.beverage').length > 1) {
-                    this.parentNode.remove();
-                }
-            ">❌</button>
-            <h4 class="beverage-count">Напиток №${beverageCount}</h4>
-            <label class="field">
-                <span class="label-text">Я буду</span>
-                <select>
-                    <option value="espresso">Эспрессо</option>
-                    <option value="capuccino" selected>Капучино</option>
-                    <option value="cacao">Какао</option>
-                </select>
-            </label>
-            <div class="field">
-                <span class="checkbox-label">Сделайте напиток на</span>
-                <label class="checkbox-field">
-                    <input type="radio" name="milk${beverageCount}" value="usual" checked />
-                    <span>обычном молоке</span>
-                </label>
-                <label class="checkbox-field">
-                    <input type="radio" name="milk${beverageCount}" value="no-fat" />
-                    <span>обезжиренном молоке</span>
-                </label>
-                <label class="checkbox-field">
-                    <input type="radio" name="milk${beverageCount}" value="soy" />
-                    <span>соевом молоке</span>
-                </label>
-                <label class="checkbox-field">
-                    <input type="radio" name="milk${beverageCount}" value="coconut" />
-                    <span>кокосовом молоке</span>
-                </label>
-            </div>
-            <div class="field">
-                <span class="checkbox-label">Добавьте к напитку:</span>
-                <label class="checkbox-field">
-                    <input type="checkbox" name="options${beverageCount}" value="whipped cream" />
-                    <span>взбитых сливок</span>
-                </label>
-                <label class="checkbox-field">
-                    <input type="checkbox" name="options${beverageCount}" value="marshmallow" />
-                    <span>зефирок</span>
-                </label>
-                <label class="checkbox-field">
-                    <input type="checkbox" name="options${beverageCount}" value="chocolate" />
-                    <span>шоколад</span>
-                </label>
-                <label class="checkbox-field">
-                    <input type="checkbox" name="options${beverageCount}" value="cinnamon" />
-                    <span>корицу</span>
-                </label>
-            </div>
-        `;
+      modalContent.innerHTML += `<p>${orderText}</p>${tableContent}`;
+      modal.style.display = "block";
+    });
+
+  function createBeverageFieldset() {
+    let newBeverage = document.querySelector("fieldset").cloneNode(true);
+    newBeverage.innerHTML = newBeverage.innerHTML
+      .replaceAll(`Напиток №1`, `Напиток №${beverageCount}`)
+      .replaceAll("milk", `milk${beverageCount}`)
+      .replaceAll("options", `options${beverageCount}`);
+
+    addDeleteButtonListener(newBeverage);
 
     return newBeverage;
+  }
+
+  function addDeleteButtonListener(beverage) {
+    beverage.querySelector('.delete-button').addEventListener("click", (e) => {
+      if (beverageCount > 1) {
+        beverageCount--;
+        e.target.parentNode.remove();
+      }
+    });
   }
 
   function getCorrectWordForm(number, word) {
@@ -116,46 +83,51 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
 
     beverages.forEach((beverage) => {
-      let selectedMilk = beverage.querySelector(`input[type="radio"]:checked`).nextElementSibling.textContent;
-      if (selectedMilk === 'обычном молоке') {
-        selectedMilk = 'обычное молоко';
+      let selectedMilk = beverage.querySelector(`input[type="radio"]:checked`)
+        .nextElementSibling.textContent;
+      if (selectedMilk === "обычном молоке") {
+        selectedMilk = "обычное молоко";
       }
-      if (selectedMilk === 'обезжиренном молоке') {
-        selectedMilk = 'обезжиренное молоко';
+      if (selectedMilk === "обезжиренном молоке") {
+        selectedMilk = "обезжиренное молоко";
       }
-      if (selectedMilk === 'соевом молоке') {
-        selectedMilk = 'соевое молоко';
+      if (selectedMilk === "соевом молоке") {
+        selectedMilk = "соевое молоко";
       }
-      if (selectedMilk === 'кокосовом молоке') {
-        selectedMilk = 'кокосовое молоко';
+      if (selectedMilk === "кокосовом молоке") {
+        selectedMilk = "кокосовое молоко";
       }
 
       let selectedOptions = [];
-      beverage.querySelectorAll(`input[type="checkbox"]:checked`).forEach((option) => {
-        let optionText = option.nextElementSibling.textContent;
+      beverage
+        .querySelectorAll(`input[type="checkbox"]:checked`)
+        .forEach((option) => {
+          let optionText = option.nextElementSibling.textContent;
 
-        if (optionText === 'взбитых сливок') {
-          optionText = 'взбитые сливки';
-        }
-        if (optionText === 'зефирок') {
-          optionText = 'зефирки';
-        }
-        if (optionText === 'корицу') {
-          optionText = 'корица';
-        }
-        selectedOptions.push(optionText);
-      });
+          if (optionText === "взбитых сливок") {
+            optionText = "взбитые сливки";
+          }
+          if (optionText === "зефирок") {
+            optionText = "зефирки";
+          }
+          if (optionText === "корицу") {
+            optionText = "корица";
+          }
+          selectedOptions.push(optionText);
+        });
 
       content += `
                 <tr>
-                    <td>${beverage.querySelector('select').selectedOptions[0].text}</td>
+                    <td>${
+                      beverage.querySelector("select").selectedOptions[0].text
+                    }</td>
                     <td>${selectedMilk}</td>
-                    <td>${selectedOptions.join(', ')}</td>
+                    <td>${selectedOptions.join(", ")}</td>
                 </tr>
             `;
     });
 
-    content += '</tbody></table>';
+    content += "</tbody></table>";
 
     return content;
   }
