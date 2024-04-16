@@ -114,13 +114,13 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedMilk = 'обычное';
       }
       if (selectedMilk === 'обезжиренном молоке') {
-        selectedMilk = 'обезжиренное молоко';
+        selectedMilk = 'обезжиренное';
       }
       if (selectedMilk === 'соевом молоке') {
-        selectedMilk = 'соевое молоко';
+        selectedMilk = 'соевое';
       }
       if (selectedMilk === 'кокосовом молоке') {
-        selectedMilk = 'кокосовое молоко';
+        selectedMilk = 'кокосовое';
       }
 
       let selectedOptions = [];
