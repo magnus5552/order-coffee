@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let modal = document.querySelector(".modal");
   let modalContent = document.querySelector(".modal-content");
   let addButton = document.querySelector(".add-button");
-  let modalClose = document.querySelector(".close");
   let beverageCount = 1;
 
   addButton.addEventListener("click", () => {
@@ -27,9 +26,36 @@ document.addEventListener("DOMContentLoaded", function () {
       )}`;
       let tableContent = generateOrderTableContent(beverages);
 
-      modalContent.innerHTML += `<p>${orderText}</p>${tableContent}`;
-      modal.style.display = "block";
+    modalContent.innerHTML += `<p>${orderText}</p>${tableContent}`;
+    modalContent.innerHTML += `
+            <br>
+            <label for="order-time">Выберите время заказа:</label>
+            <input type="time" id="order-time">
+            <br>
+            <br>
+            <button class="submit-order-button">Оформить</button>
+        `;
+    modal.style.display = 'block';
+
+    document.querySelector('.submit-order-button').addEventListener('click', function() {
+      let orderTime = document.getElementById('order-time').value;
+      let currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      if (orderTime < currentTime) {
+        alert("Мы не умеем перемещаться во времени. Выберите время позже, чем текущее.");
+        document.getElementById('order-time').style.border = "2px solid red";
+      } else {
+        document.getElementById('order-time').style.border = "2px solid green"
+        modal.style.display = 'none';
+        location.reload();
+      }
     });
+
+    document.querySelector(".close-modal").addEventListener("click", function () {
+      modal.style.display = 'none';
+      location.reload();
+    });
+  });
 
   function createBeverageFieldset() {
     let newBeverage = document.querySelector("fieldset").cloneNode(true);
@@ -83,19 +109,18 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
 
     beverages.forEach((beverage) => {
-      let selectedMilk = beverage.querySelector(`input[type="radio"]:checked`)
-        .nextElementSibling.textContent;
-      if (selectedMilk === "обычном молоке") {
-        selectedMilk = "обычное молоко";
+      let selectedMilk = beverage.querySelector(`input[type="radio"]:checked`).nextElementSibling.textContent;
+      if (selectedMilk === 'обычном молоке') {
+        selectedMilk = 'обычное';
       }
-      if (selectedMilk === "обезжиренном молоке") {
-        selectedMilk = "обезжиренное молоко";
+      if (selectedMilk === 'обезжиренном молоке') {
+        selectedMilk = 'обезжиренное молоко';
       }
-      if (selectedMilk === "соевом молоке") {
-        selectedMilk = "соевое молоко";
+      if (selectedMilk === 'соевом молоке') {
+        selectedMilk = 'соевое молоко';
       }
-      if (selectedMilk === "кокосовом молоке") {
-        selectedMilk = "кокосовое молоко";
+      if (selectedMilk === 'кокосовом молоке') {
+        selectedMilk = 'кокосовое молоко';
       }
 
       let selectedOptions = [];
